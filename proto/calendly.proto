@@ -1,0 +1,258 @@
+syntax = "proto3";
+
+package calendlygrpc;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+// Service definitions
+service UserService {
+  // Create a new user
+  rpc CreateUser(CreateUserRequest) returns (User);
+  // Get user by ID
+  rpc GetUser(GetUserRequest) returns (User);
+  // Get all users with pagination
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  // Partially update a user
+  rpc UpdateUser(UpdateUserRequest) returns (User);
+  // Delete a user
+  rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
+  // Get user profile
+  rpc GetUserProfile(google.protobuf.Empty) returns (User);
+}
+
+service SessionService {
+  // Login and get token
+  rpc Login(LoginRequest) returns (LoginResponse);
+  // Logout and invalidate token
+  rpc Logout(google.protobuf.Empty) returns (LogoutResponse);
+}
+
+service EventService {
+  // Create a new event type
+  rpc CreateEvent(CreateEventRequest) returns (Event);
+  // Get event by ID
+  rpc GetEvent(GetEventRequest) returns (Event);
+  // Get all events for authenticated user
+  rpc ListEvents(google.protobuf.Empty) returns (ListEventsResponse);
+  // Update an event
+  rpc UpdateEvent(UpdateEventRequest) returns (Event);
+  // Delete an event
+  rpc DeleteEvent(DeleteEventRequest) returns (google.protobuf.Empty);
+}
+
+service ScheduleService {
+  // Create a schedule
+  rpc CreateSchedule(CreateScheduleRequest) returns (Schedule);
+  // Get schedule by user ID
+  rpc GetSchedule(GetScheduleRequest) returns (Schedule);
+  // Get all schedules for authenticated user
+  rpc ListSchedules(google.protobuf.Empty) returns (ListSchedulesResponse);
+  // Update a schedule
+  rpc UpdateSchedule(UpdateScheduleRequest) returns (Schedule);
+  // Delete a schedule
+  rpc DeleteSchedule(DeleteScheduleRequest) returns (google.protobuf.Empty);
+}
+
+service AppointmentService {
+  // Create a new appointment
+  rpc CreateAppointment(CreateAppointmentRequest) returns (Appointment);
+  // Get appointment by ID
+  rpc GetAppointment(GetAppointmentRequest) returns (Appointment);
+  // Get all appointments for authenticated user
+  rpc ListAppointments(google.protobuf.Empty) returns (ListAppointmentsResponse);
+  // Update an appointment
+  rpc UpdateAppointment(UpdateAppointmentRequest) returns (Appointment);
+  // Delete an appointment
+  rpc DeleteAppointment(DeleteAppointmentRequest) returns (google.protobuf.Empty);
+}
+
+// Message types for User service
+message User {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string timezone = 4;
+  // Password is not returned in responses
+}
+
+message CreateUserRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+  optional string timezone = 4;
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message DeleteUserRequest {
+  string user_id = 1;
+}
+
+message ListUsersRequest {
+  int32 page = 1;
+  int32 page_size = 2;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  Pagination pagination = 2;
+}
+
+message UpdateUserRequest {
+  string user_id = 1;
+  optional string name = 2;
+  optional string email = 3;
+  optional string password = 4;
+  optional string timezone = 5;
+}
+
+message Pagination {
+  int32 page = 1;
+  int32 page_size = 2;
+  int32 total = 3;
+}
+
+// Message types for Session service
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string token = 1;
+}
+
+message LogoutResponse {
+  string message = 1;
+}
+
+// Message types for Event service
+message Event {
+  string id = 1;
+  string name = 2;
+  int32 duration = 3;
+  optional string description = 4;
+  optional string color = 5;
+  string user_id = 6;
+  bool is_owner = 7;
+}
+
+message CreateEventRequest {
+  string name = 1;
+  int32 duration = 2;
+  optional string description = 3;
+  optional string color = 4;
+}
+
+message GetEventRequest {
+  string event_id = 1;
+}
+
+message ListEventsResponse {
+  repeated Event events = 1;
+}
+
+message UpdateEventRequest {
+  string event_id = 1;
+  optional string name = 2;
+  optional int32 duration = 3;
+  optional string description = 4;
+  optional string color = 5;
+}
+
+message DeleteEventRequest {
+  string event_id = 1;
+}
+
+// Message types for Schedule service
+message Schedule {
+  int32 id = 1;
+  string user_id = 2;
+  Availability availability = 3;
+}
+
+message Availability {
+  repeated DaySchedule days = 1;
+}
+
+message DaySchedule {
+  string day = 1;  // Monday, Tuesday, etc.
+  repeated TimeRange time_ranges = 2;
+}
+
+message TimeRange {
+  string start_time = 1;  // HH:MM format
+  string end_time = 2;    // HH:MM format
+}
+
+message CreateScheduleRequest {
+  string user_id = 1;
+  Availability availability = 2;
+}
+
+message GetScheduleRequest {
+  string user_id = 1;
+}
+
+message ListSchedulesResponse {
+  repeated Schedule schedules = 1;
+}
+
+message UpdateScheduleRequest {
+  string user_id = 1;
+  Availability availability = 2;
+}
+
+message DeleteScheduleRequest {
+  string user_id = 1;
+}
+
+// Message types for Appointment service
+message Appointment {
+  string id = 1;
+  string event_id = 2;
+  string user_id = 3;
+  string invitee_email = 4;
+  string start_time = 5; // ISO 8601 format
+  string end_time = 6;   // ISO 8601 format
+  string status = 7;     // scheduled, canceled, etc.
+}
+
+message CreateAppointmentRequest {
+  string event_id = 1;
+  string invitee_email = 2;
+  string start_time = 3; // ISO 8601 format
+  string end_time = 4;   // ISO 8601 format
+}
+
+message GetAppointmentRequest {
+  string appointment_id = 1;
+}
+
+message ListAppointmentsResponse {
+  repeated Appointment appointments = 1;
+}
+
+message UpdateAppointmentRequest {
+  string appointment_id = 1;
+  optional string event_id = 2;
+  optional string invitee_email = 3;
+  optional string start_time = 4;
+  optional string end_time = 5;
+  optional string status = 6;
+}
+
+message DeleteAppointmentRequest {
+  string appointment_id = 1;
+}
+
+// Error types
+message Error {
+  int32 code = 1;
+  string message = 2;
+  optional string details = 3;
+}

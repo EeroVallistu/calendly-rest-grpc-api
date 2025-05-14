@@ -1,0 +1,23 @@
+{
+  "name": "calendly-clone-grpc",
+  "version": "1.0.0",
+  "description": "gRPC implementation of the Calendly Clone API",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "proto:gen": "npx proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=src/proto/ proto/calendly.proto",
+    "test": "node tests/test.js"
+  },
+  "keywords": ["grpc", "calendly", "api"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.9.0",
+    "@grpc/proto-loader": "^0.7.8",
+    "dotenv": "^16.3.1",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "axios": "^1.4.0"
+  }
+}
