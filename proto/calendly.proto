@@ -16,8 +16,6 @@ service UserService {
   rpc UpdateUser(UpdateUserRequest) returns (User);
   // Delete a user
   rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
-  // Get user profile
-  rpc GetUserProfile(google.protobuf.Empty) returns (User);
 }
 
 service SessionService {

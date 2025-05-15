@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "concurrently \"cd calendly-soap-api && node server.js\" \"node server.js\"",
+    "start": "node server.js",
     "test": "cd tests && node api-comparison.js"
   },
   "dependencies": {

@@ -388,18 +388,502 @@ class CalendlyAPITest {
     }
   }
   
+  // Test: Get user by ID
+  async testGetUser() {
+    this.totalTests++;
+    try {
+      // REST API call
+      const restResponse = await this.restClient.get(`/users/${this.testData.restUser.id}`);
+      
+      // gRPC call
+      const grpcUser = await this.makeAuthenticatedGrpcRequest(
+        this.userClient,
+        'getUser',
+        { user_id: this.testData.grpcUser.id },
+        this.testData.grpcToken
+      );
+      
+      // Verify both APIs return similar structure
+      assert(restResponse.data.id === this.testData.restUser.id, 'REST API should return correct user ID');
+      assert(grpcUser.id === this.testData.grpcUser.id, 'gRPC API should return correct user ID');
+      assert(restResponse.data.name === TEST_USER.name && grpcUser.name === TEST_USER.name, 'Both APIs should return the correct name');
+      
+      console.log('✓ Get user: PASSED');
+      this.passedTests++;
+    } catch (err) {
+      console.error('✗ Get user: FAILED', err.message);
+      throw err;
+    }
+  }
+  
+  // Test: List users
+  async testListUsers() {
+    this.totalTests++;
+    try {
+      // REST API call
+      const restResponse = await this.restClient.get('/users');
+      
+      // gRPC call
+      const grpcResponse = await this.makeAuthenticatedGrpcRequest(
+        this.userClient,
+        'listUsers',
+        { page: 1, page_size: 20 },
+        this.testData.grpcToken
+      );
+      
+      // Verify both APIs return arrays/collections
+      assert(Array.isArray(restResponse.data.data), 'REST API should return an array of users');
+      assert(Array.isArray(grpcResponse.users), 'gRPC API should return an array of users');
+      
+      console.log('✓ List users: PASSED');
+      this.passedTests++;
+    } catch (err) {
+      console.error('✗ List users: FAILED', err.message);
+      throw err;
+    }
+  }
+  
+  // Test: Update user
+  async testUpdateUser() {
+    this.totalTests++;
+    try {
+      const updateData = {
+        name: 'Updated Test User'
+      };
+      
+      // REST API call
+      const restResponse = await this.restClient.patch(`/users/${this.testData.restUser.id}`, updateData);
+      
+      // gRPC call
+      const grpcResponse = await this.makeAuthenticatedGrpcRequest(
+        this.userClient,
+        'updateUser',
+        {
+          user_id: this.testData.grpcUser.id,
+          name: updateData.name
+        },
+        this.testData.grpcToken
+      );
+      
+      // Verify both APIs updated correctly
+      assert(restResponse.data.name === updateData.name, 'REST API should update name');
+      assert(grpcResponse.name === updateData.name, 'gRPC API should update name');
+      
+      console.log('✓ Update user: PASSED');
+      this.passedTests++;
+    } catch (err) {
+      console.error('✗ Update user: FAILED', err.message);
+      throw err;
+    }
+  }
+  
+  // Test: Get event
+  async testGetEvent() {
+    this.totalTests++;
+    try {
+      // REST API call
+      const restResponse = await this.restClient.get(`/events/${this.testData.restEvent.id}`);
+      
+      // gRPC call
+      const grpcResponse = await this.makeAuthenticatedGrpcRequest(
+        this.eventClient,
+        'getEvent',
+        { event_id: this.testData.grpcEvent.id },
+        this.testData.grpcToken
+      );
+      
+      // Verify both APIs return correct event
+      assert(restResponse.data.id === this.testData.restEvent.id, 'REST API should return correct event ID');
+      assert(grpcResponse.id === this.testData.grpcEvent.id, 'gRPC API should return correct event ID');
+      assert(restResponse.data.name === this.testData.restEvent.name && grpcResponse.name === this.testData.grpcEvent.name, 
+             'Both APIs should return correct event name');
+      
+      console.log('✓ Get event: PASSED');
+      this.passedTests++;
+    } catch (err) {
+      console.error('✗ Get event: FAILED', err.message);
+      throw err;
+    }
+  }
+  
+  // Test: List events
+  async testListEvents() {
+    this.totalTests++;
+    try {
+      // REST API call
+      const restResponse = await this.restClient.get('/events');
+      
+      // gRPC call
+      const grpcResponse = await this.makeAuthenticatedGrpcRequest(
+        this.eventClient,
+        'listEvents',
+        {},
+        this.testData.grpcToken
+      );
+      
+      // Verify both APIs return arrays
+      assert(Array.isArray(restResponse.data), 'REST API should return an array of events');
+      assert(Array.isArray(grpcResponse.events), 'gRPC API should return an array of events');
+      
+      console.log('✓ List events: PASSED');
+      this.passedTests++;
+    } catch (err) {
+      console.error('✗ List events: FAILED', err.message);
+      throw err;
+    }
+  }
+  
+  // Test: Update event
+  async testUpdateEvent() {
+    this.totalTests++;
+    try {
+      const updateData = {
+        name: 'Updated Test Meeting',
+        description: 'Updated description',
+        duration: 45 // Adding duration to satisfy NOT NULL constraint
+      };
+      
+      // REST API call
+      const restResponse = await this.restClient.patch(`/events/${this.testData.restEvent.id}`, updateData);
+      
+      // gRPC call
+      const grpcResponse = await this.makeAuthenticatedGrpcRequest(
+        this.eventClient,
+        'updateEvent',
+        {
+          event_id: this.testData.grpcEvent.id,
+          name: updateData.name,
+          description: updateData.description,
+          duration: updateData.duration
+        },
+        this.testData.grpcToken
+      );
+      
+      // Verify both APIs updated correctly
+      assert(restResponse.data.name === updateData.name, 'REST API should update event name');
+      assert(grpcResponse.name === updateData.name, 'gRPC API should update event name');
+      assert(restResponse.data.description === updateData.description && grpcResponse.description === updateData.description, 
+             'Both APIs should update description');
+      
+      console.log('✓ Update event: PASSED');
+      this.passedTests++;
+    } catch (err) {
+      console.error('✗ Update event: FAILED', err.message);
+      throw err;
+    }
+  }
+  
+  // Test: Get schedule
+  async testGetSchedule() {
+    this.totalTests++;
+    try {
+      // REST API call
+      const restResponse = await this.restClient.get(`/schedules/${this.testData.restUser.id}`);
+      
+      // gRPC call
+      const grpcResponse = await this.makeAuthenticatedGrpcRequest(
+        this.scheduleClient,
+        'getSchedule',
+        { user_id: this.testData.grpcUser.id },
+        this.testData.grpcToken
+      );
+      
+      // Verify both APIs return user_id/userId
+      assert(restResponse.data.userId === this.testData.restUser.id, 'REST API should return correct user ID');
+      assert(grpcResponse.user_id === this.testData.grpcUser.id, 'gRPC API should return correct user ID');
+      
+      console.log('✓ Get schedule: PASSED');
+      this.passedTests++;
+    } catch (err) {
+      console.error('✗ Get schedule: FAILED', err.message);
+      throw err;
+    }
+  }
+  
+  // Test: Get appointment
+  async testGetAppointment() {
+    this.totalTests++;
+    try {
+      // REST API call
+      const restResponse = await this.restClient.get(`/appointments/${this.testData.restAppointment.id}`);
+      
+      // gRPC call
+      const grpcResponse = await this.makeAuthenticatedGrpcRequest(
+        this.appointmentClient,
+        'getAppointment',
+        { appointment_id: this.testData.grpcAppointment.id },
+        this.testData.grpcToken
+      );
+      
+      // Verify both APIs return similar structure
+      assert(restResponse.data.id === this.testData.restAppointment.id, 'REST API should return correct appointment ID');
+      assert(grpcResponse.id === this.testData.grpcAppointment.id, 'gRPC API should return correct appointment ID');
+      assert(restResponse.data.status === this.testData.restAppointment.status && 
+             grpcResponse.status === this.testData.grpcAppointment.status, 
+             'Both APIs should return correct status');
+      
+      console.log('✓ Get appointment: PASSED');
+      this.passedTests++;
+    } catch (err) {
+      console.error('✗ Get appointment: FAILED', err.message);
+      throw err;
+    }
+  }
+  
+  // Test: Delete appointment
+  async testDeleteAppointment() {
+    this.totalTests++;
+    try {
+      // REST API call
+      const restResponse = await this.restClient.delete(`/appointments/${this.testData.restAppointment.id}`);
+      
+      // gRPC call
+      const grpcResponse = await this.makeAuthenticatedGrpcRequest(
+        this.appointmentClient,
+        'deleteAppointment',
+        { appointment_id: this.testData.grpcAppointment.id },
+        this.testData.grpcToken
+      );
+      
+      // Verify both APIs delete successfully (no error means success)
+      console.log('✓ Delete appointment: PASSED');
+      this.passedTests++;
+    } catch (err) {
+      console.error('✗ Delete appointment: FAILED', err.message);
+      throw err;
+    }
+  }
+  
+  // Test: Delete event
+  async testDeleteEvent() {
+    this.totalTests++;
+    try {
+      // REST API call
+      const restResponse = await this.restClient.delete(`/events/${this.testData.restEvent.id}`);
+      
+      // gRPC call
+      const grpcResponse = await this.makeAuthenticatedGrpcRequest(
+        this.eventClient,
+        'deleteEvent',
+        { event_id: this.testData.grpcEvent.id },
+        this.testData.grpcToken
+      );
+      
+      // Verify both APIs delete successfully (no error means success)
+      console.log('✓ Delete event: PASSED');
+      this.passedTests++;
+    } catch (err) {
+      console.error('✗ Delete event: FAILED', err.message);
+      throw err;
+    }
+  }
+  
+
+  
+  // Test: Delete user
+  async testDeleteUser() {
+    this.totalTests++;
+    try {
+      // Create a temporary user for deletion
+      const tempUserData = {
+        name: 'Temp Delete User',
+        email: `temp_delete_${Date.now()}@example.com`,
+        password: 'password123',
+        timezone: 'Europe/Tallinn'
+      };
+      
+      // Create users in both APIs
+      const restTempUser = await this.restClient.post('/users', tempUserData);
+      const tempUserEmail = `temp_delete_grpc_${Date.now()}@example.com`;
+      const grpcTempUser = await this.makeGrpcRequest(this.userClient, 'createUser', {
+        name: tempUserData.name,
+        email: tempUserEmail,
+        password: tempUserData.password,
+        timezone: tempUserData.timezone
+      });
+      
+      // Log in to get tokens for these users
+      const restTempToken = (await this.restClient.post('/sessions', {
+        email: tempUserData.email,
+        password: tempUserData.password
+      })).data.token;
+      
+      const grpcTempToken = (await this.makeGrpcRequest(this.sessionClient, 'login', {
+        email: tempUserEmail,
+        password: tempUserData.password
+      })).token;
+      
+      // REST API call to delete
+      const restAuthClient = axios.create({
+        baseURL: REST_API_BASE_URL,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${restTempToken}`
+        }
+      });
+      
+      const restResponse = await restAuthClient.delete(`/users/${restTempUser.data.id}`);
+      
+      // gRPC call to delete
+      const grpcResponse = await this.makeAuthenticatedGrpcRequest(
+        this.userClient,
+        'deleteUser',
+        { user_id: grpcTempUser.id },
+        grpcTempToken
+      );
+      
+      // Verify both APIs delete successfully (no error means success)
+      console.log('✓ Delete user: PASSED');
+      this.passedTests++;
+    } catch (err) {
+      console.error('✗ Delete user: FAILED', err.message);
+      throw err;
+    }
+  }
+  
+  // Test: List schedules
+  async testListSchedules() {
+    this.totalTests++;
+    try {
+      // REST API call
+      const restResponse = await this.restClient.get('/schedules');
+      
+      // gRPC call
+      const grpcResponse = await this.makeAuthenticatedGrpcRequest(
+        this.scheduleClient,
+        'listSchedules',
+        {},
+        this.testData.grpcToken
+      );
+      
+      // Verify both APIs return arrays/collections
+      assert(Array.isArray(restResponse.data), 'REST API should return an array of schedules');
+      assert(Array.isArray(grpcResponse.schedules), 'gRPC API should return an array of schedules');
+      
+      console.log('✓ List schedules: PASSED');
+      this.passedTests++;
+    } catch (err) {
+      console.error('✗ List schedules: FAILED', err.message);
+      throw err;
+    }
+  }
+  
+  // Test: Update schedule
+  async testUpdateSchedule() {
+    this.totalTests++;
+    try {
+      const updatedAvailabilityData = {
+        days: [
+          {
+            day: 'Monday',
+            time_ranges: [
+              {
+                start_time: '10:00',
+                end_time: '18:00'
+              }
+            ]
+          },
+          {
+            day: 'Tuesday',
+            time_ranges: [
+              {
+                start_time: '09:00',
+                end_time: '17:00'
+              }
+            ]
+          }
+        ]
+      };
+      
+      // REST API call
+      const restResponse = await this.restClient.patch(`/schedules/${this.testData.restUser.id}`, {
+        availability: updatedAvailabilityData.days
+      });
+      
+      // gRPC call
+      const grpcResponse = await this.makeAuthenticatedGrpcRequest(
+        this.scheduleClient,
+        'updateSchedule',
+        {
+          user_id: this.testData.grpcUser.id,
+          availability: updatedAvailabilityData
+        },
+        this.testData.grpcToken
+      );
+      
+      // Verify both APIs return user_id/userId
+      assert(restResponse.data.userId === this.testData.restUser.id, 'REST API should return correct user ID');
+      assert(grpcResponse.user_id === this.testData.grpcUser.id, 'gRPC API should return correct user ID');
+      
+      console.log('✓ Update schedule: PASSED');
+      this.passedTests++;
+    } catch (err) {
+      console.error('✗ Update schedule: FAILED', err.message);
+      throw err;
+    }
+  }
+  
+  // Test: Delete schedule
+  async testDeleteSchedule() {
+    this.totalTests++;
+    try {
+      // REST API call
+      const restResponse = await this.restClient.delete(`/schedules/${this.testData.restUser.id}`);
+      
+      // gRPC call
+      const grpcResponse = await this.makeAuthenticatedGrpcRequest(
+        this.scheduleClient,
+        'deleteSchedule',
+        { user_id: this.testData.grpcUser.id },
+        this.testData.grpcToken
+      );
+      
+      // Verify both APIs delete successfully (no error means success)
+      console.log('✓ Delete schedule: PASSED');
+      this.passedTests++;
+    } catch (err) {
+      console.error('✗ Delete schedule: FAILED', err.message);
+      throw err;
+    }
+  }
+  
   // Run all tests
   async runTests() {
     try {
       console.log('Starting API Comparison Tests...\n');
       
+      // User service tests
       await this.testCreateUser();
       await this.testLogin();
+      await this.testGetUser();
+      await this.testListUsers();
+      await this.testUpdateUser();
+      
+      // Event service tests
       await this.testCreateEvent();
+      await this.testGetEvent();
+      await this.testListEvents();
+      await this.testUpdateEvent();
+      
+      // Schedule service tests
       await this.testCreateSchedule();
+      await this.testGetSchedule();
+      await this.testListSchedules();
+      await this.testUpdateSchedule();
+      
+      // Appointment service tests
       await this.testCreateAppointment();
+      await this.testGetAppointment();
       await this.testListAppointments();
       await this.testUpdateAppointment();
+      
+      // Deletion tests (do these last to avoid breaking other tests)
+      await this.testDeleteAppointment();
+      await this.testDeleteEvent();
+      await this.testDeleteUser();
+      await this.testDeleteSchedule();
+      
+      // Final logout
       await this.testLogout();
       
       console.log(`\nTests completed: ${this.passedTests}/${this.totalTests} passed`);
