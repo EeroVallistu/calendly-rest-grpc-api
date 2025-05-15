@@ -2,13 +2,13 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const fs = require('fs');
 
-// Use the database from root folder
-const dbPath = path.join(__dirname, '../database.db');
+// Use the database from the calendly-clone-api folder
+const dbPath = path.join(__dirname, '../calendly-clone-api/database.db');
 
 // Check if the database file exists
 if (!fs.existsSync(dbPath)) {
   console.error(`Database file not found at: ${dbPath}`);
-  console.error('Make sure the root folder contains a database.db file');
+  console.error('Make sure the database.db file exists in the calendly-clone-api folder');
   process.exit(1); // Exit the process with an error code
 }
 
@@ -67,8 +67,8 @@ const dbAsync = {
 
 // Initialize the database with the required tables
 const initializeDb = async () => {
-  // We're using the database from the root folder
-  console.log('Verifying database tables from root database');
+  // We're using the database from the root folder (same as REST API)
+  console.log('Verifying database tables in the root project database');
   
   try {
     // First, check if we can access the database at all
