@@ -5,7 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "concurrently \"node calendly-clone-api/server.js\" \"node src/server.js\"",
-    "proto:gen": "npx proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=src/proto/ proto/calendly.proto",
+    "protoc": "npx proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=src/proto/ proto/calendly.proto",
     "test": "node tests/test.js"
   },
   "keywords": ["grpc", "calendly", "api"],
