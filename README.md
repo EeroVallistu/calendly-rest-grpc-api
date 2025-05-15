@@ -6,6 +6,9 @@ This project implements a gRPC version of the Calendly Clone API that was previo
 
 ```
 /
+├── run.sh                  # Bash script to start both REST and gRPC servers
+├── run-client.sh           # Bash script to run the example client
+├── test.sh                 # Bash script to run the tests
 ├── proto/                  # Protocol Buffer definitions
 │   └── calendly.proto      # Main proto file defining all services and messages
 ├── src/                    # Source code
@@ -13,6 +16,9 @@ This project implements a gRPC version of the Calendly Clone API that was previo
 │   ├── db.js               # Database utilities
 │   ├── middleware/         # Middleware functions
 │   │   └── auth.js         # Authentication middleware
+│   ├── proto/              # Generated TypeScript definitions from proto files
+│   │   └── calendlygrpc/   # Generated service definitions
+│   │   └── google/         # Google protobuf definitions
 │   ├── services/           # Service implementations
 │   │   ├── user-service.js
 │   │   ├── session-service.js
@@ -21,53 +27,61 @@ This project implements a gRPC version of the Calendly Clone API that was previo
 │   │   └── appointment-service.js
 │   └── utils/              # Utility functions
 │       └── validators.js   # Input validation utilities
-├── client/                 # Example client
-│   └── example.js          # Example of how to use the gRPC client
-├── scripts/                # Scripts for running the server
-│   ├── run.sh              # Bash script to start the server (Linux/Mac)
-│   └── run.ps1             # PowerShell script to start the server (Windows)
+├── client/                 # Client directory
+│   └── client.js           # Example client implementation
+├── calendly-clone-api/     # Original REST API implementation
+│   ├── server.js           # REST API server
+│   ├── db.js               # Database utilities for REST API
+│   ├── routes/             # REST API routes
+│   ├── middleware/         # REST API middleware 
+│   └── docs/               # REST API documentation
 └── tests/                  # Tests to validate API functionality
-    ├── test.js             # Test implementation comparing REST and gRPC APIs
-    ├── test.sh             # Bash script to run tests (Linux/Mac)
-    └── test.ps1            # PowerShell script to run tests (Windows)
+    └── test.js             # Test implementation comparing REST and gRPC APIs
 ```
 
 ## Requirements
 
-- Node.js 14+ and npm
-- The REST API server running on port 3000 (for comparison tests)
+- Node.js 14+ and npm (or bun)
+- The project includes both the REST API and gRPC API implementations
 
 ## Installation
 
 Clone the repository and install dependencies:
 
 ```bash
-cd <project_directory>
+cd calendly-rest-gprc-api
 npm install
+# or if you prefer using bun
+bun install
 ```
 
 This will install all required dependencies, including:
 - @grpc/grpc-js - gRPC implementation for Node.js
 - @grpc/proto-loader - Proto file loader
 - sqlite3 - SQLite database driver
+- express - Web framework for REST API
 - dotenv - Environment variable loader
+- swagger-ui-express - Swagger UI for API documentation
+- concurrently - Run multiple commands concurrently
 
 ## Running the Server
 
-### On Windows:
-
-```powershell
-.\scripts\run.ps1
-```
-
-### On Linux/Mac:
+The project includes a script that starts both the REST API and gRPC servers:
 
 ```bash
-chmod +x ./scripts/run.sh
-./scripts/run.sh
+# Using the shell script
+chmod +x ./run.sh
+./run.sh
+
+# Or using npm
+npm run start
 ```
 
-The server will start on port 50051 by default. You can change the port by setting the `GRPC_PORT` environment variable.
+This will:
+1. Start the REST API server on port 3000
+2. Start the gRPC server on port 50051 (default)
+
+You can change the gRPC port by setting the `GRPC_PORT` environment variable.
 
 ## Testing
 
@@ -87,27 +101,32 @@ The testing script compares the functionality of the REST and gRPC implementatio
 - The REST API server must be running on port 3000
 - The gRPC server must be running on port 50051
 
+You can run both servers simultaneously using the provided run.sh script.
+
 ### Running Tests
 
-### On Windows:
-
-```powershell
-.\tests\test.ps1
-```
-
-### On Linux/Mac:
-
 ```bash
-chmod +x ./tests/test.sh
-./tests/test.sh
+# Using the shell script
+chmod +x ./test.sh
+./test.sh
+
+# Or using npm
+npm run test
 ```
+
+This will execute the test suite that compares the REST and gRPC API implementations.
 
 ## Example Client
 
-An example client implementation is provided in `client/example.js`. You can run it to see how to interact with the gRPC server:
+An example client implementation is provided in `client/client.js`. You can run it to see how to interact with the gRPC server:
 
 ```bash
-node client/example.js
+# Using the provided script
+chmod +x ./run-client.sh
+./run-client.sh
+
+# Or directly with node
+node client/client.js
 ```
 
 This will:
@@ -145,3 +164,34 @@ The gRPC implementation uses standard gRPC error codes to indicate various error
 - INTERNAL (13) - For database or server errors
 
 Each error includes a descriptive message explaining the issue.
+
+## Generated TypeScript Types
+
+The project includes automatically generated TypeScript definitions for the Protocol Buffer definitions. These are located in the `src/proto/` directory. You can regenerate these types using:
+
+```bash
+npm run protoc
+```
+
+## Development
+
+### Adding New Features
+
+1. Update the Protocol Buffer definition in `proto/calendly.proto`
+2. Regenerate TypeScript types with `npm run protoc`
+3. Implement the service in the appropriate file under `src/services/`
+4. Update tests to verify functionality
+
+This utilizes the `concurrently` package to run both servers in parallel.
+
+## Technology Stack
+
+- **Backend**: Node.js
+- **Database**: SQLite
+- **API**: gRPC and REST
+- **Documentation**: Swagger UI for REST API
+- **Testing**: Custom comparison framework
+
+## License
+
+ISC

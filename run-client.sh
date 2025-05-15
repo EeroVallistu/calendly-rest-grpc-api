@@ -4,4 +4,4 @@
 npm install
 
 # Run the client script
-node client.js
+node client/client.js

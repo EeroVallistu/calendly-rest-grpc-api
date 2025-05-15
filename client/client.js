@@ -4,7 +4,7 @@ const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 
 // Load Proto definition
-const PROTO_PATH = path.resolve(__dirname, './proto/calendly.proto');
+const PROTO_PATH = path.resolve(__dirname, '../proto/calendly.proto');
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
   keepCase: true,
   longs: String,
